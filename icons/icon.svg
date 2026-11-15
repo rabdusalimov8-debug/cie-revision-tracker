@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#191919"/>
+  <!-- Indigo accent square -->
+  <rect x="80" y="80" width="352" height="352" rx="48" fill="#5B5BD6"/>
+  <!-- White "CIE" text -->
+  <text
+    x="256"
+    y="300"
+    font-family="'Inter', 'Helvetica Neue', Arial, sans-serif"
+    font-size="128"
+    font-weight="800"
+    fill="#FFFFFF"
+    text-anchor="middle"
+    letter-spacing="-4"
+  >CIE</text>
+  <!-- Thin white underline accent -->
+  <rect x="136" y="330" width="240" height="10" rx="5" fill="rgba(255,255,255,0.4)"/>
+</svg>
