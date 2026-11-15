@@ -1,0 +1,672 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cambridge A-Level Revision Tracker & Smart Guide</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- PWA / Android -->
+  <meta name="theme-color" content="#191919">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CIE Revision">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js').catch(function(e) {
+          console.warn('SW registration failed:', e);
+        });
+      });
+    }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-badge">CIE</div>
+        <div class="app-title-box">
+          <h1>A-Level Revision</h1>
+          <span>Cambridge May 2027</span>
+        </div>
+      </div>
+
+      <ul class="nav-menu">
+        <li class="nav-item active" data-view="dashboard">
+          <button>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+            Dashboard
+          </button>
+        </li>
+        <li class="nav-item" data-view="syllabus">
+          <button>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Syllabus Tracker
+          </button>
+        </li>
+        <li class="nav-item" data-view="past-papers">
+          <button>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Past Paper Logger
+          </button>
+        </li>
+        <li class="nav-item" data-view="study-next">
+          <button>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 22v-4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M22 12h-4"/><path d="m19.07 4.93-2.83 2.83"/></svg>
+            What to Study Next
+            <span class="nav-badge" id="rec-count-badge">5</span>
+          </button>
+        </li>
+        <li class="nav-item" data-view="timer">
+          <button>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Study Timer
+          </button>
+        </li>
+        <li class="nav-item" data-view="analytics">
+          <button>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Analytics & Streaks
+          </button>
+        </li>
+        <li class="nav-item" data-view="settings">
+          <button>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Data & Settings
+          </button>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="countdown-widget-mini">
+          <div class="countdown-label">Target: May 1, 2027</div>
+          <div class="countdown-val" id="mini-countdown-text">Calculating...</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <h2 class="page-title" id="page-heading">Dashboard</h2>
+        </div>
+        <div class="topbar-right">
+          <!-- Mini Timer status pill -->
+          <div class="mini-timer-pill" id="header-mini-timer" title="Click to open timer">
+            <span class="mini-timer-dot" id="header-timer-dot"></span>
+            <span id="header-timer-time">25:00</span>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button class="btn-icon" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+            <svg id="theme-icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg id="theme-icon-moon" style="display:none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+
+          <!-- Quick Action -->
+          <button class="btn btn-primary btn-sm" id="btn-quick-log-paper">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Log Past Paper
+          </button>
+        </div>
+      </header>
+
+      <!-- View Containers -->
+      <main class="content-body">
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="view-panel">
+          <!-- Countdown Hero Banner -->
+          <div class="card" style="background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(14,165,233,0.08)); border-color: rgba(99,102,241,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+              <div>
+                <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-sky); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Cambridge International A Levels • May/June 2027</div>
+                <h2 style="font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em;">Road to May 2027 Exams</h2>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 4px;">Further Mathematics (9231) • Mathematics (9709) • Information Technology (9626)</p>
+              </div>
+              <div style="display: flex; gap: 14px; text-align: center;">
+                <div style="background: var(--bg-card); padding: 12px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); min-width: 80px;">
+                  <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: var(--accent-indigo);" id="hero-countdown-months">--</div>
+                  <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Months</div>
+                </div>
+                <div style="background: var(--bg-card); padding: 12px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); min-width: 80px;">
+                  <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: var(--accent-sky);" id="hero-countdown-days">--</div>
+                  <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Days</div>
+                </div>
+                <div style="background: var(--bg-card); padding: 12px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color); min-width: 80px;">
+                  <div style="font-size: 1.8rem; font-weight: 800; font-family: var(--font-mono); color: var(--accent-emerald);" id="hero-countdown-hours">--</div>
+                  <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Hours</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Syllabus Mastered</div>
+              <div class="stat-val" id="dash-stat-mastered">0%</div>
+              <div class="stat-sub" id="dash-stat-mastered-sub">0 of 0 topics</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Past Papers Completed</div>
+              <div class="stat-val" id="dash-stat-papers-count">0</div>
+              <div class="stat-sub" id="dash-stat-avg-score">Avg Score: --%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Total Study Time</div>
+              <div class="stat-val" id="dash-stat-study-hours">0h</div>
+              <div class="stat-sub" id="dash-stat-sessions-count">0 logged sessions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Top Priority Urgency</div>
+              <div class="stat-val" style="color: var(--accent-rose);" id="dash-stat-critical-count">0</div>
+              <div class="stat-sub">Topics needing immediate attention</div>
+            </div>
+          </div>
+
+          <!-- Top Priority Study Next Widget -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-indigo)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                What to Study Next (Smart Priority Recommendation)
+              </div>
+              <button class="btn btn-secondary btn-sm" id="btn-view-all-recs">View All Recommendations &rarr;</button>
+            </div>
+            <div id="dash-top-recs-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Subject Mastery Breakdown Cards -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent-sky)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                Subject Mastery Overview
+              </div>
+            </div>
+            <div id="dash-subject-cards-container" style="display: flex; flex-direction: column; gap: 16px;">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. SYLLABUS TRACKER VIEW -->
+        <section id="view-syllabus" class="view-panel" style="display:none;">
+          <!-- Subject Navigation Tabs -->
+          <div class="subject-tabs" id="syllabus-subject-tabs">
+            <!-- Rendered via JS -->
+          </div>
+
+          <!-- Controls Bar -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; gap: 10px; align-items: center; flex: 1; max-width: 450px;">
+              <input type="text" id="syllabus-search-input" class="form-input" placeholder="Search topics (e.g., Polar coordinates, Matrices, SQL)...">
+              <select id="syllabus-filter-status" class="form-select" style="max-width: 160px;">
+                <option value="ALL">All Statuses</option>
+                <option value="Not Started">Not Started</option>
+                <option value="Revising">Revising</option>
+                <option value="Confident">Confident</option>
+                <option value="Mastered">Mastered</option>
+              </select>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary btn-sm" id="btn-add-custom-topic">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Topic
+              </button>
+            </div>
+          </div>
+
+          <!-- Papers and Topics Accordion List -->
+          <div id="syllabus-papers-container">
+            <!-- Rendered via JS -->
+          </div>
+        </section>
+
+        <!-- 3. PAST PAPER LOGGER VIEW -->
+        <section id="view-past-papers" class="view-panel" style="display:none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <select id="filter-pp-subject" class="form-select" style="max-width: 220px;">
+                <option value="ALL">All Subjects</option>
+              </select>
+              <select id="filter-pp-year" class="form-select" style="max-width: 140px;">
+                <option value="ALL">All Years</option>
+                <option value="2026">2026</option>
+                <option value="2025">2025</option>
+                <option value="2024">2024</option>
+                <option value="2023">2023</option>
+                <option value="2022">2022</option>
+                <option value="2021">2021</option>
+                <option value="2020">2020</option>
+                <option value="2019">2019</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="btn-open-add-pp-modal">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Log Past Paper Attempt
+            </button>
+          </div>
+
+          <!-- Past Paper Stats Summary -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Logged Papers</div>
+              <div class="stat-val" id="pp-stat-total">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Average Score</div>
+              <div class="stat-val" id="pp-stat-avg">0%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Highest Score</div>
+              <div class="stat-val" style="color: var(--accent-emerald);" id="pp-stat-highest">0%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Flagged Mistake Topics</div>
+              <div class="stat-val" style="color: var(--accent-rose);" id="pp-stat-mistakes-count">0</div>
+            </div>
+          </div>
+
+          <!-- Past Paper Log Table -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Past Paper Performance & Reflection Log</div>
+            </div>
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Subject & Paper</th>
+                    <th>Series & Variant</th>
+                    <th>Raw Score</th>
+                    <th>Percentage</th>
+                    <th>Grade</th>
+                    <th>Mistake Reflections & Tagged Topics</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="pp-table-body">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. WHAT TO STUDY NEXT VIEW -->
+        <section id="view-study-next" class="view-panel" style="display:none;">
+          <div class="card" style="background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(244,63,94,0.06));">
+            <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 6px;">Intelligent Revision Recommendation Engine</h3>
+            <p style="color: var(--text-secondary); font-size: 0.88rem; line-height: 1.5;">
+              Our algorithm prioritizes your study sessions by cross-analyzing your <strong>topic confidence levels</strong>, <strong>time decay since your last review</strong>, and <strong>specific questions where you lost marks in past papers</strong>.
+            </p>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">Filter Subject:</span>
+              <select id="recs-filter-subject" class="form-select" style="max-width: 200px;">
+                <option value="ALL">All Subjects</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="full-recs-container">
+            <!-- Rendered via JS -->
+          </div>
+        </section>
+
+        <!-- 5. STUDY TIMER & POMODORO VIEW -->
+        <section id="view-timer" class="view-panel" style="display:none;">
+          <div style="max-width: 700px; margin: 0 auto;">
+            <!-- Mode Switcher -->
+            <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 24px;">
+              <button class="btn btn-secondary btn-sm active" id="timer-mode-work" style="border-radius: 20px; padding: 8px 18px;">Work (25m)</button>
+              <button class="btn btn-secondary btn-sm" id="timer-mode-shortbreak" style="border-radius: 20px; padding: 8px 18px;">Short Break (5m)</button>
+              <button class="btn btn-secondary btn-sm" id="timer-mode-longbreak" style="border-radius: 20px; padding: 8px 18px;">Long Break (15m)</button>
+              <button class="btn btn-secondary btn-sm" id="timer-mode-stopwatch" style="border-radius: 20px; padding: 8px 18px;">Deep Work Stopwatch</button>
+            </div>
+
+            <!-- Subject & Topic Context Selection -->
+            <div class="card" style="margin-bottom: 24px;">
+              <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                  <label class="form-label">Subject for this session:</label>
+                  <select id="timer-select-subject" class="form-select">
+                    <!-- Rendered via JS -->
+                  </select>
+                </div>
+                <div style="flex: 1.5; min-width: 250px;">
+                  <label class="form-label">Topic being revised:</label>
+                  <select id="timer-select-topic" class="form-select">
+                    <!-- Rendered via JS -->
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Large Circular Timer -->
+            <div class="card timer-container">
+              <div class="timer-circle-wrap">
+                <svg class="timer-svg" viewBox="0 0 100 100">
+                  <circle class="timer-bg-circle" cx="50" cy="50" r="44"></circle>
+                  <circle class="timer-progress-circle" id="timer-circle-progress" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="0"></circle>
+                </svg>
+                <div class="timer-center-text">
+                  <span class="timer-mode-label" id="timer-display-mode">FOCUS SESSION</span>
+                  <span class="timer-time-display" id="timer-display-time">25:00</span>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;" id="timer-display-context">Select a topic above</span>
+                </div>
+              </div>
+
+              <!-- Timer Action Buttons -->
+              <div class="timer-controls">
+                <button class="btn btn-primary" id="btn-timer-toggle" style="padding: 12px 28px; font-size: 1.05rem;">
+                  <svg id="timer-play-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  <svg id="timer-pause-icon" style="display:none;" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                  <span id="timer-btn-text">Start Focus</span>
+                </button>
+                <button class="btn btn-secondary" id="btn-timer-reset" title="Reset Session">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                  Reset
+                </button>
+                <button class="btn btn-secondary" id="btn-timer-skip" title="Complete / Skip">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
+                  Skip
+                </button>
+              </div>
+
+              <div style="margin-top: 18px; font-size: 0.85rem; color: var(--text-secondary);">
+                Cycles Completed Today: <strong style="color: var(--accent-emerald);" id="timer-completed-cycles">0</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. ANALYTICS & STREAKS VIEW -->
+        <section id="view-analytics" class="view-panel" style="display:none;">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Study Time</div>
+              <div class="stat-val" id="analytics-total-hours">0.0h</div>
+              <div class="stat-sub">Across all Cambridge subjects</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Further Maths (9231)</div>
+              <div class="stat-val" style="color: var(--accent-indigo);" id="analytics-hours-9231">0.0h</div>
+              <div class="stat-sub">Focus time</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Mathematics (9709)</div>
+              <div class="stat-val" style="color: var(--accent-sky);" id="analytics-hours-9709">0.0h</div>
+              <div class="stat-sub">Focus time</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Information Tech (9626)</div>
+              <div class="stat-val" style="color: var(--accent-emerald);" id="analytics-hours-9626">0.0h</div>
+              <div class="stat-sub">Focus time</div>
+            </div>
+          </div>
+
+          <!-- Study History Table -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Study Session History</div>
+            </div>
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date & Time</th>
+                    <th>Subject</th>
+                    <th>Topic</th>
+                    <th>Type</th>
+                    <th>Duration</th>
+                    <th>Notes</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="analytics-sessions-tbody">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. BACKUP & SETTINGS VIEW -->
+        <section id="view-settings" class="view-panel" style="display:none;">
+          <div style="max-width: 750px;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Exam Countdown & Timer Preferences</div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">May 2027 Series Target Date:</label>
+                  <input type="datetime-local" id="settings-target-date" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Pomodoro Work Duration (minutes):</label>
+                  <input type="number" id="settings-work-mins" class="form-input" min="5" max="120" value="25">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Short Break (minutes):</label>
+                  <input type="number" id="settings-short-mins" class="form-input" min="1" max="30" value="5">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Long Break (minutes):</label>
+                  <input type="number" id="settings-long-mins" class="form-input" min="5" max="60" value="15">
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm" id="btn-save-settings">Save Preferences</button>
+            </div>
+
+            <!-- Data Portability Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Local Data Backup & Restore</div>
+              </div>
+              <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 16px;">
+                All your revision progress, topic statuses, past paper logs, and study sessions are stored securely in your browser's local IndexedDB. No external servers or internet connection required.
+              </p>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="btn-export-backup">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export Complete Backup (JSON)
+                </button>
+                <label class="btn btn-secondary" style="margin: 0; cursor: pointer;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Import Backup File (JSON)
+                  <input type="file" id="input-import-backup" accept=".json" style="display: none;">
+                </label>
+              </div>
+            </div>
+
+            <!-- Testing & Reset Card -->
+            <div class="card" style="border-color: rgba(245,158,11,0.3);">
+              <div class="card-header">
+                <div class="card-title" style="color: var(--accent-amber);">Sample Data & Syllabus Reset</div>
+              </div>
+              <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 16px;">
+                Want to test out the past paper logger, error tracking, and smart revision recommendations with realistic A-Level sample data?
+              </p>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-secondary" id="btn-load-sample-data">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Load Realistic Sample Data
+                </button>
+                <button class="btn btn-danger btn-sm" id="btn-reset-defaults">
+                  Reset to Cambridge Default Syllabi
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL: LOG PAST PAPER -->
+  <div class="modal-overlay" id="modal-past-paper">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-pp-title">Log Cambridge Past Paper Attempt</h3>
+        <button class="btn-icon modal-close" id="btn-close-pp-modal">&times;</button>
+      </div>
+      <form id="form-past-paper">
+        <input type="hidden" id="pp-form-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Subject:</label>
+            <select id="pp-form-subject" class="form-select" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Paper:</label>
+            <select id="pp-form-paper" class="form-select" required></select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Year:</label>
+            <input type="number" id="pp-form-year" class="form-input" min="2015" max="2027" value="2024" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Series:</label>
+            <select id="pp-form-series" class="form-select" required>
+              <option value="m/j">May/June (s)</option>
+              <option value="o/n">Oct/Nov (w)</option>
+              <option value="f/m">Feb/March (m)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Variant:</label>
+            <input type="number" id="pp-form-variant" class="form-input" min="1" max="33" value="12" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Raw Marks Scored:</label>
+            <input type="number" id="pp-form-raw" class="form-input" min="0" max="150" required placeholder="e.g. 62">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Max Marks:</label>
+            <input type="number" id="pp-form-max" class="form-input" min="1" max="150" value="75" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Calculated Score:</label>
+            <input type="text" id="pp-form-percent-preview" class="form-input" readonly value="--%" style="background: var(--bg-card); font-weight: 700;">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date Completed:</label>
+            <input type="date" id="pp-form-date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Time Spent (Minutes):</label>
+            <input type="number" id="pp-form-time" class="form-input" placeholder="e.g. 110">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mistake Reflections & Notes (What went wrong?):</label>
+          <textarea id="pp-form-mistakes" class="form-textarea" placeholder="e.g. Made algebraic slip on question 5 polar area integral; lost marks on 2nd order differential equation particular integral choice."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tag Syllabus Topics with Mistakes (Boosts their revision priority):</label>
+          <div id="pp-form-topics-checkboxes" style="max-height: 140px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 8px 12px; background: var(--bg-input);">
+            <!-- Populated via JS based on selected paper -->
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Past Paper Log</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD CUSTOM TOPIC -->
+  <div class="modal-overlay" id="modal-topic">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Add / Edit Syllabus Topic</h3>
+        <button class="btn-icon modal-close">&times;</button>
+      </div>
+      <form id="form-topic">
+        <input type="hidden" id="topic-form-id">
+        <div class="form-group">
+          <label class="form-label">Paper:</label>
+          <select id="topic-form-paper" class="form-select" required></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Topic Title:</label>
+          <input type="text" id="topic-form-name" class="form-input" required placeholder="e.g. Oblique Projectiles on Inclined Planes">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Initial Status:</label>
+            <select id="topic-form-status" class="form-select">
+              <option value="Not Started">Not Started</option>
+              <option value="Revising">Revising</option>
+              <option value="Confident">Confident</option>
+              <option value="Mastered">Mastered</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Exam Frequency:</label>
+            <select id="topic-form-weight" class="form-select">
+              <option value="High Frequency">High Frequency</option>
+              <option value="Core">Core Topic</option>
+              <option value="Moderate">Moderate</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Revision Notes & Key Reminders:</label>
+          <textarea id="topic-form-notes" class="form-textarea" placeholder="Key formulas, common pitfalls, and syllabus points to remember..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Topic</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Application Script (Standalone bundle works offline & locally) -->
+  <script src="js/bundle.js"></script>
+
+  <!-- Bottom Tab Bar (Mobile PWA) -->
+  <nav id="bottom-tab-bar" class="bottom-tab-bar">
+    <button class="tab-btn active" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg><span>Home</span></button>
+    <button class="tab-btn" data-view="syllabus"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span>Syllabus</span></button>
+    <button class="tab-btn" data-view="past-papers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg><span>Papers</span></button>
+    <button class="tab-btn" data-view="study-next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg><span>Study</span></button>
+    <button class="tab-btn" data-view="timer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Timer</span></button>
+  </nav>
+  <script>
+  (function(){var tabs=document.querySelectorAll('#bottom-tab-bar .tab-btn');tabs.forEach(function(btn){btn.addEventListener('click',function(){var v=btn.getAttribute('data-view');var sb=document.querySelector('.nav-item[data-view="'+v+'"] button');if(sb)sb.click();tabs.forEach(function(b){b.classList.remove('active');});btn.classList.add('active');});});document.querySelectorAll('.nav-item').forEach(function(item){var ib=item.querySelector('button');if(ib)ib.addEventListener('click',function(){var v=item.getAttribute('data-view');tabs.forEach(function(tb){tb.classList.toggle('active',tb.getAttribute('data-view')===v);});});});})();
+  </script></body>
+</html>
